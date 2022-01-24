@@ -1,15 +1,15 @@
 ﻿// See https://aka.ms/new-console-template for more information
 
-namespace CompSci
+namespace Kinematics
 {
-    class Kinematics 
+    class project 
     {
         static void Main(string[] args)
         {
             double Velocity = 5;
             double Displacement = 1;//set to 1 for the challenge, set to 0 for normal parts
             double Time = 0;
-            double ForceAir = (-0.5 * Velocity*Velocity);//this models air resistance. the 4 is the massand 0.5 is the coefficient.
+            double ForceAir = -0.5 * Velocity*Velocity;//this models air resistance. the 4 is the mass and 0.5 is the coefficient.
             double SpringDisplacement = Displacement - 2;
             double ForceSpring = -8*SpringDisplacement;
             double ForceGrav = -9.8 * 4;
@@ -26,15 +26,22 @@ namespace CompSci
                 Velocity = Velocity + Acceleration * 0.1;//v=at so it is iterating as well
                 if (Velocity > 0)
                 {   
-                    ForceAir = (- 0.5 * Velocity * Velocity);
+                    ForceAir = (-0.5 * Velocity * Velocity);
                 }//if the object is going up the air resistance goes down
                 else 
                 {
                     ForceAir = (0.5 * Velocity * Velocity);
                 }//if the object is going down the air resistance goes up
 
-                SpringDisplacement = Displacement - 2;
-                ForceSpring = Math.Round(-8 * SpringDisplacement);//Direct application of Hooks spring law
+                if (Displacement > 0)
+                {
+                    SpringDisplacement = Displacement - 2;
+                }
+                else 
+                {
+                    SpringDisplacement = Displacement + 2;
+                }
+                ForceSpring = -8 * SpringDisplacement;//Direct application of Hooks spring law
                 ForceNet = ForceAir + ForceSpring + ForceGrav;//Adds the Force of both things to bring a force net excluding gravity
                 Acceleration = ForceNet / 4;//This uses force net and adds onto the gravity already. Gravity could be included already in force net but it is easier this way
 
