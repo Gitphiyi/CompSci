@@ -12,8 +12,10 @@ namespace Kinematics3D
         private const double deltaTime = 0.01;
         static void Main(string[] args)
         {
+            double v = (double) 5 / 3;
+            Console.WriteLine(v);
             //LevelI();
-            LevelII();
+            //LevelII();
             //LevelIII();
         }
         private static void LevelI()
@@ -23,7 +25,7 @@ namespace Kinematics3D
             double velocity = 5;
             double velocityX = Math.Cos(angle) * velocity;
             double velocityZ = Math.Sin(angle) * velocity;
-            CalculatePos(0,0,0,velocityX,0,velocityZ,0,0,0, false,false);
+            CalculatePos(new Vector(0,0,0), new Vector(velocityX,0,velocityZ),new Vector(0,0,0), false,false);
         }
         private static void LevelII()
         {
@@ -32,81 +34,45 @@ namespace Kinematics3D
             double velocity = 5;
             double velocityX = Math.Cos(angle) * velocity;
             double velocityZ = Math.Sin(angle) * velocity;
-            CalculatePos(0, 0, 0, velocityX, 0, velocityZ, 0, 0, 0, false, true);
+            CalculatePos(new Vector(0,0,0), new Vector(velocityX,0,velocityZ), new Vector(0,0,0), false, true);
         }
         private static void LevelIII()
         {
-            CalculatePos(-1, 1, -1, 5, -1, 3, 0, 0, 0, true, true);
+            CalculatePos(new Vector(-1,1,-1), new Vector(5,-1,3), new Vector(0,0,0), true, true);
         }
-        private static void CalculatePos(double displacementX, double displacementY, double displacementZ, double velocityX, double velocityY, double velocityZ, double accelerationX, double accelerationY, double accelerationZ, Boolean spring, Boolean air)
+        private static void CalculatePos(Vector displacement, Vector velocity, Vector acceleration, Boolean spring, Boolean air)
         { 
-            double distance = Math.Sqrt(displacementX * displacementX + displacementY * displacementY + displacementZ * displacementZ);
-            double speed = Math.Sqrt(velocityX * velocityX + velocityY * velocityY + velocityZ * velocityZ);
-            double m_Accel = 0;
+            double distance = displacement.Magnitude;
+            double speed = velocity.Magnitude;
+            double m_Accel = acceleration.Magnitude;
             double time = 0;
-            double fNetZ = 0;
-            double fNetY = 0;
-            double fNetX = 0;
-            double Fgrav = gravAccel * mass;
-            double FairX = 0;
-            double FairY = 0;
-            double FairZ = 0;
-            double FspringX = 0;
-            double FspringY = 0;
-            double FspringZ = 0;
-            if (air)
-            {
-                FairX = -dragConst * velocityX * speed;
-                FairY = -dragConst * velocityY * speed;
-                FairZ = -dragConst * velocityZ * speed;
-            }
-            if (distance != 0 && spring)
-            {
-                FspringX = -springConst * (1 - unstretchSpring / distance) * displacementX;
-                FspringY = -springConst * (1 - unstretchSpring / distance) * displacementY;
-                FspringZ = -springConst * (1 - unstretchSpring / distance) * displacementZ;
-            }
-            fNetZ = Fgrav + FairZ + FspringZ;
-            fNetY = FairY + FspringY;
-            fNetX = FairX + FspringX;
-            accelerationX = fNetX / mass;
-            accelerationY = fNetY / mass;
-            accelerationZ = fNetZ / mass;
+            Vector forceNet = new (0,0,0);
+            Vector forceAir = new (0,0,0);
+            Vector forceGrav = new (0, 0, gravAccel * mass);
+            Vector forceSpring = new(0,0,0);
 
             Console.WriteLine("Time \t x \t y \t z \t distance \t velX \t velY \t velZ \t Speed \t \t accelX \t accelY \t accelZ \t Mass_Accel");
-            while (displacementZ >= 0)//usually is displacementZ >= 0 but is time < 20 for part 3
+            while (displacement.Z >= 0)//usually is displacement.Z >= 0 but is time < 20 for part 3
             {
-                distance = Math.Sqrt(displacementX*displacementX + displacementY*displacementY + displacementZ*displacementZ);
-                speed = Math.Sqrt(velocityX*velocityX + velocityY*velocityY + velocityZ*velocityZ);
-                m_Accel = Math.Sqrt(accelerationX*accelerationX + accelerationY*accelerationY + accelerationZ*accelerationZ);
-                
-                Console.WriteLine($"{Math.Round(time,3)} \t {Math.Round(displacementX,2)}\t{Math.Round(displacementY,2)}\t{Math.Round(displacementZ,2)}\t{Math.Round(distance,2)}\t{Math.Round(velocityX,2)}\t{Math.Round(velocityY,2)}\t{Math.Round(velocityZ,2)}\t{Math.Round(speed,2)}\t{Math.Round(accelerationX,2)}\t{Math.Round(accelerationY,2)}\t{Math.Round(accelerationZ,2)}\t{Math.Round(m_Accel,2)}");
+                distance = displacement.Magnitude;
+                speed = velocity.Magnitude;
+                m_Accel = acceleration.Magnitude;
+
+                Console.WriteLine($"{Math.Round(time,3)} \t {Math.Round(displacement.X,2)}\t{Math.Round(displacement.Y,2)}\t{Math.Round(displacement.Z,2)}\t{Math.Round(distance,2)}\t{Math.Round(velocity.X,2)}\t{Math.Round(velocity.Y,2)}\t{Math.Round(velocity.Z,2)}\t{Math.Round(speed,2)}\t{Math.Round(acceleration.X,2)}\t{Math.Round(acceleration.Y,2)}\t{Math.Round(acceleration.Z,2)}\t{Math.Round(m_Accel,2)}");
                 time += deltaTime;
-                if(air)
+                if (air)
                 {
-                    FairX = -dragConst * velocityX * speed;
-                    FairY = -dragConst * velocityY * speed;
-                    FairZ = -dragConst * velocityZ * speed;
+                    forceAir = -dragConst * speed * velocity;
                 }
-                if (spring)
+                if (distance != 0 && spring)
                 {
-                    FspringX = -springConst * (1 - unstretchSpring / distance) * displacementX;
-                    FspringY = -springConst * (1 - unstretchSpring / distance) * displacementY;
-                    FspringZ = -springConst * (1 - unstretchSpring / distance) * displacementZ;
+                    forceSpring = -springConst * displacement;
                 }
                 //depends if the situation wants to have spring force or air resistance
-                fNetZ = Fgrav + FairZ + FspringZ;
-                fNetY = FairY + FspringY;
-                fNetX = FairX + FspringX;
-                accelerationX = fNetX / mass;
-                accelerationY = fNetY / mass;
-                accelerationZ = fNetZ / mass;
-                velocityX += accelerationX * deltaTime;
-                velocityY += accelerationY * deltaTime;
-                velocityZ += accelerationZ * deltaTime;
-                displacementX += velocityX * deltaTime;
-                displacementY += velocityY * deltaTime;
-                displacementZ += velocityZ * deltaTime;
+                forceNet = forceGrav + forceAir + forceSpring;
+                acceleration = forceNet / mass;
+                velocity += acceleration * deltaTime;
+                displacement += velocity * deltaTime;
             }
         }
     }

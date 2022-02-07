@@ -1,6 +1,6 @@
 ﻿namespace Utility
 {
-    public class Vector
+    public struct Vector : IEquatable<Vector>
     {
         public double X { get; set; }
         public double Y { get; set; }
@@ -9,14 +9,21 @@
 
         public Vector(double x, double y, double z)
         {
-            X = x;
-            Y = y;
-            z = z;
+            if (Double.IsNaN(x) || Double.IsNaN(y) || Double.IsNaN(z))
+            {
+                throw new ArgumentException("Invanlid value: NaN");
+            }
+            else
+            { 
+                X = (double)x;
+                Y = (double)y;
+                Z = (double)z;
+            }
         }
 
         public static Vector operator +(Vector v1, Vector v2)
         {
-            var newVector = new Vector(
+            Vector newVector = new Vector(
             v1.X + v2.X,
             v1.Y + v2.Y,
             v1.Z + v2.Z
@@ -37,6 +44,17 @@
         {
             return v1 * scalar;
         }
+        public static Vector operator /(Vector v1, double scalar)
+        {
+            if (scalar == 0)
+            {
+                throw new ArgumentException("Vector attempted to divide by zero!");
+            }
+            else 
+            {
+                return (1 / scalar) * v1;
+            }
+        }
         public static Vector operator -(Vector v1)
         {
             return -1 * v1;
@@ -46,23 +64,51 @@
             return v1 + -v2;
         }
         public double Magnitude => Math.Sqrt(X * X + Y * Y + Z * Z);
-        public double DotProduct(Vector v1, Vector v2)
+        public static double DotProduct(Vector v1, Vector v2)
         {
             return v1.X * v2.X + v1.Y * v2.Y + v1.Z * v2.Z;
         }
-        public static Boolean operator ==(Vector v1, Vector v2)
+
+        public static bool operator ==(Vector v1, Vector v2)
         {
             if (v1.X == v2.X && v1.Y == v2.Y && v1.Z == v2.Z) { return true; }
             else { return false; }
         }
-        public static Boolean operator !=(Vector v1, Vector v2)
+        public static bool operator !=(Vector v1, Vector v2)
         {
             if (v1.X != v2.X && v1.Y == v2.Y && v1.Z == v2.Z) { return true; }
             else { return false; }
         }
-        public static Vector normalizeVector(Vector v1) 
+        public static Vector NormalizeVector(Vector v1) 
         {
-            return new Vector(v1.X, v1.Y , v1.Z) * 1/v1.Magnitude;
+            return new Vector(v1.X, v1.Y , v1.Z) / v1.Magnitude;
         }
+
+        override public String ToString()
+        {
+            return $"<{Math.Round(X,3)},{Math.Round(Y,3)},{Math.Round(Z,3)}>";
+        }
+
+        public override bool Equals(object? obj)
+        {
+            return obj is Vector vector && Equals(vector);
+        }
+
+        public bool Equals(Vector other)
+        {
+            return X == other.X &&
+                   Y == other.Y &&
+                   Z == other.Z;
+        }
+        public static double Distance (Vector v1, Vector v2)
+        {
+            return  (v2 - v1).Magnitude;
+        }
+
+        public override int GetHashCode()
+        {
+            return HashCode.Combine(X, Y, Z);
+        }
+
     }
 }
